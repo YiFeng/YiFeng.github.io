@@ -14,26 +14,20 @@ function getDfMessenger() {
   return dfMessenger;
 }
 
-async function initializeDialogflow(metadata) {
-  const dfMessenger = getDfMessenger();
-  dfMessenger.setContext(metadata);
-  console.log(`Metadata for user ID '${metadata.user_id}' sent to Dialogflow Messenger context.`);
-
-  await dfMessenger.sendRequest('event', 'Welcome');
-  console.log('Welcome event sent to Dialogflow Messenger.');
-}
-
 window.addEventListener('df-messenger-loaded', () => {
   console.log('Dialogflow Messenger loaded.');
-  initializeDialogflow(testMetadata);
+  const dfMessenger = getDfMessenger();
+  dfMessenger.setContext(testMetadata);
+  console.log(`Metadata for user ID '${testMetadata.user_id}' sent to Dialogflow Messenger context.`);
 });
 
 window.addEventListener('df-chat-open-changed', async (event) => {
   const isOpen = !!event.detail.isOpen;
+  const hasSession = !!sessionStorage.getItem('df-messenger-sessionID');
 
   console.log(`Chat is ${isOpen ? 'open' : 'closed'}`);
 
-  if (isOpen) {
+  if (isOpen & !hasSession) {
     const dfMessenger = getDfMessenger();
     await dfMessenger.sendRequest('event', 'Welcome');
     console.log('Welcome event sent to Dialogflow Messenger.');
