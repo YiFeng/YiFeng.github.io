@@ -1,7 +1,9 @@
+console.log('df_dev executing...')
+
 const testMetadata = {
-  "subscription plan": "Business Premium Plus",
-  "user_id": "12345",
-  "user_type": "admin"
+  'subscription plan': 'Business Premium Plus',
+  'user_id': '12345',
+  'user_type': 'admin'
 };
 
 async function initializeDialogflow(metadata) {
@@ -16,7 +18,18 @@ async function initializeDialogflow(metadata) {
   console.log('Welcome event sent to Dialogflow Messenger.');
 }
 
-document.addEventListener('df-messenger-loaded', () => {
+window.addEventListener('df-messenger-loaded', () => {
+  console.log('Dialogflow Messenger loaded.');
   initializeDialogflow(testMetadata);
 });
 
+window.addEventListener('df-chat-open-changed', async (event) => {
+  const isOpen = !!event.detail.isOpen;
+
+  console.log(`Chat is ${isOpen ? 'open' : 'closed'}`);
+
+  if (isOpen) {
+    await dfMessenger.sendRequest('event', 'Welcome');
+    console.log('Welcome event sent to Dialogflow Messenger.');
+  }
+});
