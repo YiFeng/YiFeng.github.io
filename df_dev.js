@@ -6,11 +6,16 @@ const testMetadata = {
   'user_type': 'admin'
 };
 
-async function initializeDialogflow(metadata) {
+function getDfMessenger() {
   const dfMessenger = document.querySelector('df-messenger');
   if (!dfMessenger) {
     throw new Error('df-messenger element not found on the page.');
   }
+  return dfMessenger;
+}
+
+async function initializeDialogflow(metadata) {
+  const dfMessenger = getDfMessenger();
   dfMessenger.setContext(metadata);
   console.log(`Metadata for user ID '${metadata.user_id}' sent to Dialogflow Messenger context.`);
 
@@ -29,6 +34,7 @@ window.addEventListener('df-chat-open-changed', async (event) => {
   console.log(`Chat is ${isOpen ? 'open' : 'closed'}`);
 
   if (isOpen) {
+    const dfMessenger = getDfMessenger();
     await dfMessenger.sendRequest('event', 'Welcome');
     console.log('Welcome event sent to Dialogflow Messenger.');
   }
