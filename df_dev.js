@@ -24,6 +24,7 @@ window.addEventListener('df-messenger-loaded', () => {
 window.addEventListener('df-chat-open-changed', async (event) => {
   const isOpen = !!event.detail.isOpen;
   const hasSession = !!sessionStorage.getItem('df-messenger-sessionID');
+  console.log(`has session is ${hasSession}`);
 
   console.log(`Chat is ${isOpen ? 'open' : 'closed'}`);
 
