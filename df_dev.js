@@ -21,15 +21,15 @@ window.addEventListener('df-messenger-loaded', () => {
   console.log(`Metadata for user ID '${testMetadata.user_id}' sent to Dialogflow Messenger context.`);
 });
 
-window.addEventListener('df-session-id-set', async (event) => {
-  const isNew = event.detail.isNew;
-  console.log(`DF-Messenger session ID set. Is new session: ${isNew}`);
-
-  const dfMessenger = getDfMessenger();
-  const isOpen = dfMessenger.isOpen;
+window.addEventListener('df-chat-open-changed', (event) => {
+  const isOpen = !!event.detail.isOpen;
   console.log(`Chat is ${isOpen ? 'open' : 'closed'}`);
 
-  if (isOpen && isNew) {
+window.addEventListener('df-session-id-set', async (event) => {
+  const isNewSession = event.detail.isNew;
+  console.log(`DF-Messenger session ID set. Is new session: ${isNew}`);
+
+  if (isOpen && isNewSession) {
     dfMessenger.sendRequest('event', 'Welcome');
     console.log('Welcome event sent to Dialogflow Messenger on new session.');
   }
