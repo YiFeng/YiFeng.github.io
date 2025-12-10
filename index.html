@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test</title>
+  <title>Test Page</title>
+  
   <link rel="stylesheet" href="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css">
-  <script src="df_dev.js"></script>
+  
+  <script src="df_dev.js"></script> 
   <script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
+  
   <style>
     df-messenger {
       z-index: 999;
@@ -20,21 +23,41 @@
       bottom: 16px;
       right: 16px;
     }
+
+    /* Style for your test button */
+    #test-event-btn {
+      padding: 15px 25px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 50px;
+    }
+    #test-event-btn:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
+
   <h1>Hello!</h1>
-  <p>This is a test webpage for the PERTS Assistant Chatbot using Dialogflow CX </p>
+  <p>This is a test webpage for the PERTS Assistant Chatbot using Dialogflow CX.</p>
+
+  <button id="test-event-btn">Test: Open Chat & Send Event</button>
+
   <df-messenger
-  project-id="triton-dev"
-  agent-id="5748b184-08a7-410d-ac3c-3c493677e54d"
-  language-code="en"
-  max-query-length="-1"
-  allow-feedback="all"
-  wait-open=false>
-  <df-messenger-chat-bubble
-   chat-title="PERTS-Assistant-Playbook-DEV">
-  </df-messenger-chat-bubble>
-</df-messenger>
+    project-id="triton-dev"
+    agent-id="5748b184-08a7-410d-ac3c-3c493677e54d"
+    language-code="en"
+    max-query-length="-1"
+    allow-feedback="all"
+    wait-open="false">
+    <df-messenger-chat-bubble
+     chat-title="PERTS-Assistant-Playbook-DEV">
+    </df-messenger-chat-bubble>
+  </df-messenger>
+
 </body>
 </html>
