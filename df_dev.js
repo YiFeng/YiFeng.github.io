@@ -18,7 +18,7 @@ function getDfMessenger() {
   return dfMessenger;
 }
 
-// Listen for df-messenger-loaded event to set initial context.
+// 1. Listen for df-messenger-loaded to set initial context.
 window.addEventListener('df-messenger-loaded', () => {
   console.log('Dialogflow Messenger loaded.');
   const dfMessenger = getDfMessenger();
@@ -26,7 +26,7 @@ window.addEventListener('df-messenger-loaded', () => {
   console.log(`Metadata for user ID '${testMetadata.user_id}' sent to Dialogflow Messenger context.`);
 });
 
-// Listen for df-chat-open-changed to capture the exact moment the chat opens.
+// 2. Listen for df-chat-open-changed to capture the exact moment the chat opens.
 window.addEventListener('df-chat-open-changed', (event) => {
   const isOpen = !!event.detail.isOpen;
   console.log(`Chat is ${isOpen ? 'open' : 'closed'}`);
@@ -34,7 +34,7 @@ window.addEventListener('df-chat-open-changed', (event) => {
   // Trigger the Welcome event only when the chat opens and it's a new session.
   if (isOpen && isNewSession) {
     const dfMessenger = getDfMessenger();
-    dfMessenger.sendRequest('event', 'Welcome');
+    dfMessenger.sendRequest('event', 'Welcome'); // Make sure this matches your event name (Case Sensitive)
     console.log('Welcome event sent to Dialogflow Messenger on first open of a new session.');
     
     // Reset the state to prevent the welcome message from being sent again
@@ -43,8 +43,34 @@ window.addEventListener('df-chat-open-changed', (event) => {
   }
 });
 
-// Listen for df-session-id-set to determine if it's a new session.
+// 3. Listen for df-session-id-set to determine if it's a new session.
 window.addEventListener('df-session-id-set', (event) => {
   isNewSession = event.detail.isNew;
   console.log(`DF-Messenger session ID set. Is new session: ${isNewSession}`);
+});
+
+// 4. [NEW] Listen for User Feedback (Thumbs Down) to show Support Link
+window.addEventListener('df-user-feedback-sent', (event) => {
+  console.log('User feedback sent:', event.detail);
+
+  // Check if the reaction is a Thumbs Down (Dislike)
+  if (event.detail.reaction === 'THUMBS_DOWN') {
+    const dfMessenger = getDfMessenger();
+    
+    // Render a custom card immediately in the chat to redirect user
+    dfMessenger.renderCustomCard([
+      {
+        "type": "info",
+        "title": "We're sorry to hear that.",
+        "subtitle": "If you couldn't find what you needed, please contact our support team.",
+        "image": {
+          "src": {
+            "rawUrl": "https://perts.net/favicon.ico" // Optional: Change to a relevant support icon URL
+          }
+        },
+        "actionLink": "https://www.perts.net/contact"
+      }
+    ]);
+    console.log('Negative feedback detected. Support link card rendered.');
+  }
 });
