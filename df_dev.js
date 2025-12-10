@@ -8,7 +8,7 @@ const testMetadata = {
 
 let isNewSession = false;
 let isChatOpen = false;
-let pendingTestEvent = false; // NEW FLAG to track button clicks
+let pendingTestEvent = false;
 
 function getDfMessenger() {
   const dfMessenger = document.querySelector('df-messenger');
@@ -32,32 +32,23 @@ window.addEventListener('df-messenger-loaded', () => {
   const testBtn = document.getElementById('test-event-btn');
   if (testBtn) {
     testBtn.addEventListener('click', () => {
-      console.log('Test Button Clicked. Setting pending flag...');
-      pendingTestEvent = true; // Mark that we want to fire the 'test' event
+      console.log('Test Button Clicked.');
+      pendingTestEvent = true; // Set flag
       
-      // Check if chat is closed
       if (!isChatOpen) {
-        console.log('Chat is closed. Forcing open via Shadow DOM...');
-        const shadowRoot = dfMessenger.shadowRoot;
-        const triggerBtn = shadowRoot.querySelector('#widgetIcon') || 
-                           shadowRoot.querySelector('button#trigger');
-        
-        if (triggerBtn) {
-          triggerBtn.click();
-        } else {
-          console.error('Could not find trigger button in Shadow DOM.');
-        }
+        console.log('Chat is closed. Opening via expand attribute...');
+        // The Official way to open the widget
+        dfMessenger.setAttribute('expand', 'true');
       } else {
-        // Chat is already open, fire immediately
-        console.log('Chat already open. Firing test event now.');
+        console.log('Chat already open. Firing test event.');
         dfMessenger.sendRequest('event', 'test');
-        pendingTestEvent = false; // Reset flag
+        pendingTestEvent = false;
       }
     });
   }
 });
 
-// 3. Handle Chat Opening
+// 3. Handle Chat Opening Logic
 window.addEventListener('df-chat-open-changed', (event) => {
   isChatOpen = !!event.detail.isOpen;
   console.log(`Chat state changed. Open: ${isChatOpen}`);
@@ -66,20 +57,20 @@ window.addEventListener('df-chat-open-changed', (event) => {
     const dfMessenger = getDfMessenger();
     if (!dfMessenger) return;
 
-    // Wait 500ms for animation to finish
+    // Wait 500ms for the animation to finish
     setTimeout(() => {
       
-      // SCENARIO A: User clicked the Test Button
+      // CASE A: Opened via Test Button
       if (pendingTestEvent) {
-        console.log('Found pending test flag. Sending "test" event...');
+        console.log('Pending Test Event detected. Sending "test"...');
         dfMessenger.sendRequest('event', 'test');
         pendingTestEvent = false; // Reset flag
       } 
       
-      // SCENARIO B: Normal User Click (First time only)
+      // CASE B: Opened manually by User (First time)
       else if (isNewSession) {
-        console.log('Normal open detected. Sending "Welcome" event...');
-        dfMessenger.sendRequest('event', 'Welcome'); // Your standard welcome
+        console.log('Normal User Open. Sending "Welcome"...');
+        dfMessenger.sendRequest('event', 'Welcome');
         isNewSession = false;
       }
       
