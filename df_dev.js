@@ -7,6 +7,7 @@ const testMetadata = {
 };
 
 let isNewSession = false;
+let isChatOpen = false; // Track locally if chat is open
 
 function getDfMessenger() {
   const dfMessenger = document.querySelector('df-messenger');
@@ -26,48 +27,43 @@ window.addEventListener('df-messenger-loaded', () => {
   dfMessenger.setContext(testMetadata);
   console.log(`Metadata set for user ID: ${testMetadata.user_id}`);
 
-  // 2. [FIXED] Attach Feedback Listener DIRECTLY to the element, not window
-  dfMessenger.addEventListener('df-user-feedback-sent', (event) => {
-    console.log('FEEDBACK EVENT FIRED!', event.detail);
-
-    // Get reaction and normalize to lowercase to be safe
-    const reaction = (event.detail.reaction || '').toUpperCase();
-
-    if (reaction === 'THUMBS_DOWN' || reaction === 'DISLIKE') {
-      console.log('Negative feedback detected. Attempting to render card...');
+  // 2. [NEW] Attach Listener to the Test Button
+  const testBtn = document.getElementById('test-event-btn');
+  if (testBtn) {
+    testBtn.addEventListener('click', () => {
+      console.log('Test Button Clicked...');
       
-      // Check if the render function exists before calling it
-      if (typeof dfMessenger.renderCustomCard === 'function') {
-        dfMessenger.renderCustomCard([
-          {
-            "type": "info",
-            "title": "We're sorry to hear that.",
-            "subtitle": "If you need help, please contact our support team.",
-            "image": {
-              "src": {
-                "rawUrl": "https://perts.net/favicon.ico" 
-              }
-            },
-            "actionLink": "https://perts.net/support"
-          }
-        ]);
-        console.log('Support card rendered successfully.');
-      } else {
-        console.error('Error: renderCustomCard function is missing on this widget version.');
+      // A. Check if chat is closed. If so, force it open.
+      if (!isChatOpen) {
+        console.log('Chat is closed. Attempting to open...');
+        // Hack to open V1 messenger programmatically (Click the shadow DOM icon)
+        const shadowIcon = dfMessenger.shadowRoot.querySelector('#widgetIcon');
+        if (shadowIcon) {
+          shadowIcon.click();
+        }
       }
-    }
-  });
+
+      // B. Send the Event
+      // Allow a tiny delay (100ms) for the UI to open before sending the event
+      setTimeout(() => {
+        dfMessenger.sendRequest('event', 'Welcome'); // Or use 'CUSTOM_TEST_EVENT'
+        console.log('Manual Event sent via Test Button.');
+      }, 100);
+    });
+  }
 });
 
+// Track Open/Close state so the button knows whether to "Click" the icon or not
 window.addEventListener('df-chat-open-changed', (event) => {
-  const isOpen = !!event.detail.isOpen;
-  console.log(`Chat is ${isOpen ? 'open' : 'closed'}`);
+  isChatOpen = !!event.detail.isOpen;
+  console.log(`Chat state changed. Open: ${isChatOpen}`);
 
-  if (isOpen && isNewSession) {
+  // Triggers the automatic welcome on first open (your original logic)
+  if (isChatOpen && isNewSession) {
     const dfMessenger = getDfMessenger();
     if (dfMessenger) {
-      dfMessenger.sendRequest('event', 'Welcome'); // Ensure this matches your Intent Event Name!
-      console.log('Welcome event sent.');
+      dfMessenger.sendRequest('event', 'Welcome');
+      console.log('Auto-Welcome event sent on first open.');
       isNewSession = false;
     }
   }
