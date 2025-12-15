@@ -43,6 +43,7 @@ window.addEventListener('df-messenger-loaded', () => {
           console.log('Sending "test" event immediately after openChat...');
           dfMessenger.sendRequest('event', 'test');
           pendingTestEvent = false; // Prevent listener from double-sending
+          isNewSession = false; // Prevent Welcome event from firing
         } else {
           console.warn('df-messenger-chat-bubble not found. Falling back to expand attribute.');
           dfMessenger.setAttribute('expand', 'true');
@@ -51,6 +52,7 @@ window.addEventListener('df-messenger-loaded', () => {
         console.log('Chat already open. Firing test event.');
         dfMessenger.sendRequest('event', 'test');
         pendingTestEvent = false;
+        isNewSession = false;
       }
     });
   }
