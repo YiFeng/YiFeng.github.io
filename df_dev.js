@@ -34,11 +34,19 @@ window.addEventListener('df-messenger-loaded', () => {
     testBtn.addEventListener('click', () => {
       console.log('Test Button Clicked.');
       pendingTestEvent = true; // Set flag
-      
+
       if (!isChatOpen) {
-        console.log('Chat is closed. Opening via expand attribute...');
-        // The Official way to open the widget
-        dfMessenger.setAttribute('expand', 'true');
+        console.log('Chat is closed. Opening via openChat()...');
+        const chatBubble = dfMessenger.querySelector('df-messenger-chat-bubble');
+        if (chatBubble) {
+          chatBubble.openChat();
+          console.log('Sending "test" event immediately after openChat...');
+          dfMessenger.sendRequest('event', 'test');
+          pendingTestEvent = false; // Prevent listener from double-sending
+        } else {
+          console.warn('df-messenger-chat-bubble not found. Falling back to expand attribute.');
+          dfMessenger.setAttribute('expand', 'true');
+        }
       } else {
         console.log('Chat already open. Firing test event.');
         dfMessenger.sendRequest('event', 'test');
@@ -59,21 +67,22 @@ window.addEventListener('df-chat-open-changed', (event) => {
 
     // Wait 500ms for the animation to finish
     setTimeout(() => {
-      
+
       // CASE A: Opened via Test Button
+      console.log(`Checking pendingTestEvent in listener. Value: ${pendingTestEvent}`);
       if (pendingTestEvent) {
         console.log('Pending Test Event detected. Sending "test"...');
         dfMessenger.sendRequest('event', 'test');
         pendingTestEvent = false; // Reset flag
-      } 
-      
+      }
+
       // CASE B: Opened manually by User (First time)
       else if (isNewSession) {
         console.log('Normal User Open. Sending "Welcome"...');
         dfMessenger.sendRequest('event', 'Welcome');
         isNewSession = false;
       }
-      
+
     }, 500);
   }
 });
