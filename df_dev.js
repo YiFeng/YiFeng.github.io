@@ -41,7 +41,7 @@ window.addEventListener('df-messenger-loaded', () => {
         if (chatBubble) {
           chatBubble.openChat();
           console.log('Sending "test" event immediately after openChat...');
-          dfMessenger.sendRequest('event', 'test');
+          dfMessenger.sendRequest('query', 'How do I reset my password?');
           pendingTestEvent = false; // Prevent listener from double-sending
           isNewSession = false; // Prevent Welcome event from firing
         } else {
@@ -50,7 +50,7 @@ window.addEventListener('df-messenger-loaded', () => {
         }
       } else {
         console.log('Chat already open. Firing test event.');
-        dfMessenger.sendRequest('event', 'test');
+        dfMessenger.sendRequest('query', 'How do I reset my password?');
         pendingTestEvent = false;
         isNewSession = false;
       }
