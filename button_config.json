@@ -1,0 +1,10 @@
+{
+    "buttons": {
+        "reset-password": {
+            "query": "How do I reset my password?"
+        },
+        "subscription-plan": {
+            "query": "What is the subscription plan?"
+        }
+    }
+}

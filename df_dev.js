@@ -19,6 +19,16 @@ function getDfMessenger() {
   return dfMessenger;
 }
 
+// Load config
+let buttonConfig = {};
+fetch('button_config.json')
+  .then(response => response.json())
+  .then(data => {
+    buttonConfig = data;
+    console.log('Button config loaded:', buttonConfig);
+  })
+  .catch(error => console.error('Error loading button config:', error));
+
 window.addEventListener('df-messenger-loaded', () => {
   console.log('Dialogflow Messenger loaded.');
   const dfMessenger = getDfMessenger();
@@ -28,11 +38,21 @@ window.addEventListener('df-messenger-loaded', () => {
   dfMessenger.setContext(testMetadata);
   console.log(`Metadata set for user ID: ${testMetadata.user_id}`);
 
-  // 2. Attach Listener to the Test Button
-  const testBtn = document.getElementById('test-event-btn');
-  if (testBtn) {
-    testBtn.addEventListener('click', () => {
-      console.log('Test Button Clicked.');
+  // 2. Attach Listener to All Trigger Buttons
+  const triggerBtns = document.querySelectorAll('.chat-trigger-btn');
+  triggerBtns.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      // Resolve query from Config ID or fallback to data-query
+      const btnId = e.target.getAttribute('data-btn-id');
+      let query = e.target.getAttribute('data-query'); // Legacy support
+
+      if (btnId && buttonConfig.buttons && buttonConfig.buttons[btnId]) {
+        query = buttonConfig.buttons[btnId].query;
+      }
+
+      query = query || 'Hi'; // Final fallback
+
+      console.log(`Trigger Button Clicked. ID: ${btnId}, Query: "${query}"`);
       pendingTestEvent = true; // Set flag
 
       if (!isChatOpen) {
@@ -40,9 +60,9 @@ window.addEventListener('df-messenger-loaded', () => {
         const chatBubble = dfMessenger.querySelector('df-messenger-chat-bubble');
         if (chatBubble) {
           chatBubble.openChat();
-          console.log('Sending "test" event immediately after openChat...');
-          dfMessenger.renderCustomText('How do I reset my password?', false);
-          dfMessenger.sendRequest('query', 'How do I reset my password?');
+          console.log('Sending query immediately after openChat...');
+          dfMessenger.renderCustomText(query, false);
+          dfMessenger.sendRequest('query', query);
           pendingTestEvent = false; // Prevent listener from double-sending
           isNewSession = false; // Prevent Welcome event from firing
         } else {
@@ -50,14 +70,14 @@ window.addEventListener('df-messenger-loaded', () => {
           dfMessenger.setAttribute('expand', 'true');
         }
       } else {
-        console.log('Chat already open. Firing test event.');
-        dfMessenger.renderCustomText('How do I reset my password?', false);
-        dfMessenger.sendRequest('query', 'How do I reset my password?');
+        console.log('Chat already open. Sending query.');
+        dfMessenger.renderCustomText(query, false);
+        dfMessenger.sendRequest('query', query);
         pendingTestEvent = false;
         isNewSession = false;
       }
     });
-  }
+  });
 });
 
 // 3. Handle Chat Opening Logic
