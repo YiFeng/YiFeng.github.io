@@ -42,27 +42,42 @@ window.addEventListener('df-messenger-loaded', () => {
   const triggerBtns = document.querySelectorAll('.chat-trigger-btn');
   triggerBtns.forEach((btn) => {
     btn.addEventListener('click', (e) => {
-      // Resolve query from Config ID or fallback to data-query
+      // Resolve query, title, url from Config ID or fallback
       const btnId = e.target.getAttribute('data-btn-id');
       let query = e.target.getAttribute('data-query'); // Legacy support
+      let title = "Info";
+      let url = "#";
 
       if (btnId && buttonConfig.buttons && buttonConfig.buttons[btnId]) {
-        query = buttonConfig.buttons[btnId].query;
+        const btnData = buttonConfig.buttons[btnId];
+        query = btnData.query;
+        title = btnData.title || title;
+        url = btnData.url || url;
       }
 
       query = query || 'Hi'; // Final fallback
 
-      console.log(`Trigger Button Clicked. ID: ${btnId}, Query: "${query}"`);
+      console.log(`Trigger Button Clicked. ID: ${btnId}, Query: "${query}", Title: "${title}", URL: "${url}"`);
       pendingTestEvent = true; // Set flag
+
+      const payload = [
+        {
+          "type": "info",
+          "title": title,
+          "anchor": {
+            "href": url,
+            "target": "_blank"
+          }
+        }
+      ];
 
       if (!isChatOpen) {
         console.log('Chat is closed. Opening via openChat()...');
         const chatBubble = dfMessenger.querySelector('df-messenger-chat-bubble');
         if (chatBubble) {
           chatBubble.openChat();
-          console.log('Sending query immediately after openChat...');
-          dfMessenger.renderCustomText(query, false);
-          dfMessenger.sendRequest('query', query);
+          console.log('Rendering custom card immediately after openChat...');
+          dfMessenger.renderCustomCard(payload);
           pendingTestEvent = false; // Prevent listener from double-sending
           isNewSession = false; // Prevent Welcome event from firing
         } else {
@@ -70,9 +85,8 @@ window.addEventListener('df-messenger-loaded', () => {
           dfMessenger.setAttribute('expand', 'true');
         }
       } else {
-        console.log('Chat already open. Sending query.');
-        dfMessenger.renderCustomText(query, false);
-        dfMessenger.sendRequest('query', query);
+        console.log('Chat already open. Rendering custom card.');
+        dfMessenger.renderCustomCard(payload);
         pendingTestEvent = false;
         isNewSession = false;
       }

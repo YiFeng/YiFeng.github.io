@@ -1,10 +1,14 @@
 {
     "buttons": {
         "reset-password": {
-            "query": "How do I reset my password?"
+            "query": "How do I reset my password?",
+            "url": "https://elevate-support.perts.net/support/solutions/articles/67000674844-what-is-elevate-",
+            "title": "Reset Password"
         },
         "subscription-plan": {
-            "query": "What is the subscription plan?"
+            "query": "What is the subscription plan?",
+            "url": "https://elevate-support.perts.net/support/solutions/articles/67000670156-does-perts-offer-an-elevate-demo-",
+            "title": "View Subscription Plans"
         }
     }
 }
